@@ -1,0 +1,424 @@
+openapi: 3.0.0
+info:
+  description: IT lab API
+  title: IT lab API
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /database/:
+    post:
+      description: Create database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DatabaseCreateRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatabaseResponse"
+          description: Database has been created
+        "400":
+          description: An error occured during database creation.
+    get:
+      description: List databases
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  type: object
+                type: array
+          description: Success!
+        "400":
+          description: Bad request.
+  /database/{databaseName}/:
+    post:
+      description: Update database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DatabaseUpdateRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatabaseResponse"
+          description: Database has been updated
+        "400":
+          description: An error occured during database update.
+    get:
+      description: Get database
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatabaseResponse"
+          description: return database!
+        "404":
+          description: Not found
+  /database/{databaseName}/table/:
+    post:
+      description: Create table
+      parameters:
+        - description: Database Id
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Table"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Table"
+          description: Table created!
+        "400":
+          description: Table can't be created.
+    get:
+      description: Get all tables.
+      parameters:
+        - description: Database Name
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Table"
+                type: array
+          description: Success!
+        "400":
+          description: Bad request.
+  /database/{databaseName}/table/{tableName}/:
+    delete:
+      description: Drop table
+      parameters:
+        - description: Database Name
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Table Name
+          explode: false
+          in: path
+          name: tableName
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "204":
+          description: Deletion succesful
+        "400":
+          description: An error occured during deletion.
+    get:
+      description: Get table.
+      parameters:
+        - description: Database Id
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Table"
+          description: Success!
+        "400":
+          description: Bad request.
+    post:
+      description: Update table
+      parameters:
+        - description: Database Id
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Table"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Table"
+          description: Table updated!
+        "400":
+          description: Bad Request.
+  /database/{databaseName}/dump/:
+    get:
+      description: Create database dump
+      parameters:
+        - description: Database Id
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "200":
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+          description: Dump created and returned!
+        "400":
+          description: Bad request!
+  /database/from_dump/:
+    post:
+      description: Recreate database from dump
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/DbDump"
+        required: true
+      responses:
+        "201":
+          description: Database has been created from dump
+        "400":
+          description: An error occured during database creation.
+  /database/{databaseName}/table/{tableName}/column/:
+    post:
+      description: Add column to specified table.
+      parameters:
+        - description: Database Id
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Table Id
+          explode: false
+          in: path
+          name: tableName
+          required: true
+          schema:
+            type: string
+          style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Row"
+        required: true
+      responses:
+        "201":
+          description: Add column successful.
+        "400":
+          description: Bad request.
+  /database/{databaseName}/table/{tableName}/column/{columnId}/:
+    post:
+      description: Update column in specified table.
+      parameters:
+        - description: Database Id
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Table Id
+          explode: false
+          in: path
+          name: tableName
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Column Id
+          explode: false
+          in: path
+          name: columnId
+          required: true
+          schema:
+            type: string
+          style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Row"
+        required: true
+      responses:
+        "200":
+          description: Column updated successfully.
+        "400":
+          description: Bad request.
+    get:
+      description: get column from specified table.
+      parameters:
+        - description: Database Id
+          explode: false
+          in: path
+          name: databaseName
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Table Id
+          explode: false
+          in: path
+          name: tableName
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: Column Id
+          explode: false
+          in: path
+          name: columnId
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "200":
+          description: Ok.
+        "400":
+          description: Bad request.
+components:
+  parameters:
+    databaseName:
+      description: Database Name
+      explode: false
+      in: path
+      name: databaseName
+      required: true
+      schema:
+        type: string
+      style: simple
+    tableName:
+      description: Table Name
+      explode: false
+      in: path
+      name: tableName
+      required: true
+      schema:
+        type: string
+      style: simple
+  schemas:
+    ColumnType:
+      enum:
+        - char
+        - string
+        - integer
+        - real
+        - textfile
+        - integer_interval
+      title: ColumnType
+      type: string
+    Table:
+      example:
+        columns:
+          key: null
+        tableName: tableName
+      properties:
+        tableName:
+          minLength: 1
+          title: tableName
+          type: string
+        columns:
+          additionalProperties:
+            $ref: "#/components/schemas/ColumnType"
+          minProperties: 1
+          title: columns
+          type: object
+      required:
+        - columns
+        - tableName
+      title: TableSchema
+      type: object
+    Row:
+      example:
+        rowId: 1
+        columnName: columnName
+      properties:
+        rowId:
+          minimum: 1
+          title: rowId
+          type: integer
+        columnName:
+          minLength: 1
+          title: columnName
+          type: string
+      required:
+        - columnName
+        - rowId
+      title: Row
+      type: object
+    DatabaseCreateRequest:
+      properties:
+        databaseName:
+          minLength: 1
+          title: databaseName
+          type: string
+      required:
+        - databaseName
+      title: _database_create_post_request
+      type: object
+    DatabaseResponse:
+      example:
+        databaseName: databaseName
+      properties:
+        databaseName:
+          title: databaseName
+          type: string
+      title: _database_create_post_201_response
+      type: object
+    DatabaseUpdateRequest:
+      $ref: "#/components/schemas/DatabaseCreateRequest"
+    DbDump:
+      properties:
+        dump:
+          format: binary
+          type: string
+      type: object
+
